@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Minghan Qu, Yi Jiang, Chaolong Wang" />
+
+<meta name="date" content="2022-04-11" />
+
+<title>MethyGenotyper</title>
+
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">MethyGenotyper</h1>
+<h4 class="author">Minghan Qu, Yi Jiang, Chaolong Wang</h4>
+<h4 class="date">2022-04-11</h4>
+
+
+
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>The <code>MethyGenotyper</code> package provides functions to infer genotypes (output a VCF file) for specific probes and on Illumina’s Infinium MethylationEPIC (EPIC) array. The probes include genotyping probes, color-channel-switching (CCS) SNP probes, and Type-II SNP probes. We defined allelic balance (AB) as the proportion of signals supporting the alternative allele and calculated AB for each probe and sample.</p>
+<ul>
+<li><strong>Genotyping probe:</strong> There are 59 genotyping probes (started with “rs”) on EPIC array. Six of them on sex chromosomes were removed. We calculated AB as the proportion of signals supporting alternative alleles over total signals.</li>
+<li><strong>CCS SNP probe:</strong> There are ## CCS SNP probes on EPIC array. These probes are type-I probes with SNPs at single base extension (SBE) resulting in CCS (A,T &lt;-&gt; C,G mutation). The signals for probes with CCS SNPs are called out-of-band signals. We calculated AB as the proportion of out-of-band signals over total signals.</li>
+<li><strong>Type-II SNP probe:</strong> There are ## Type-II SNP probes. We only focus on probes with SNPs at SBE. We calculated AB as the proportion of signals supporting alternative alleles over total signals.</li>
+</ul>
+<p>We used <code>ewastools</code> to call genotypes based on the AB values. This tool fit three beta distributions for three genotypes (reference homozygous, heterozygous, and alternative homozygous) and one uniform distribution for outliers. Genotype probabilities of the three genotypes (<span class="math inline">\(P_0\)</span>, <span class="math inline">\(P_1\)</span>, and <span class="math inline">\(P_2\)</span> for reference homozygous, heterozygous, and alternative homozygous, respectively) will be calculated for each probe and sample. Lastly, a VCF file containing allele frequency (AF), <span class="math inline">\(R^2\)</span>, genotype probability, and dosage genotype (DS) will be produced:</p>
+<ul>
+<li><strong>DS:</strong> <span class="math inline">\(G = P_1 + 2P_2\)</span></li>
+<li><strong>AF:</strong> <span class="math inline">\(p = \frac{\sum G}{2N}\)</span>, where <span class="math inline">\(N\)</span> is the sample size</li>
+<li><strong><span class="math inline">\(R^2\)</span>:</strong> <span class="math inline">\(R^2 = \frac{\sigma^2}{2p(1-p)}\)</span>, where <span class="math inline">\(\sigma^2\)</span> is the variance of dosage genotypes</li>
+</ul>
+<p>As an option, we also provided several convenient tools for estimating kinships and sample contamination.</p>
+</div>
+<div id="dependencies" class="section level2">
+<h2>Dependencies</h2>
+<p>This document has the following dependencies</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(MethyGenotyper)</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">library</span>(minfi)</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="kw">library</span>(tidyverse)</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="kw">library</span>(ewastools)</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="kw">library</span>(foreach)</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="kw">library</span>(doParallel)</span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="kw">library</span>(reshape)</span></code></pre></div>
+</div>
+<div id="recommended-workflow" class="section level2">
+<h2>Recommended workflow</h2>
+<div id="read-manifest-file-and-idat-file-list" class="section level3">
+<h3>Read manifest file and IDAT file list</h3>
+<p>Load EPIC manifest file. Required columns: Name, AddressA_ID, AddressB_ID, Infinium_Design_Type, and Color_Channel.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">data</span>(mnfst)</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="kw">head</span>(mnfst)</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="co">#&gt;         Name AddressA_ID AddressB_ID Infinium_Design_Type Color_Channel</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="co">#&gt; 1 cg07881041    85713262          NA                   II              </span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="co">#&gt; 2 cg18478105    46761277    86644198                    I           Grn</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="co">#&gt; 3 cg23229610    21717843          NA                   II              </span></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="co">#&gt; 4 cg03513874    29622133          NA                   II              </span></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="co">#&gt; 5 cg09835024    16745152    81631976                    I           Red</span></span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="co">#&gt; 6 cg05451842    16681196          NA                   II</span></span></code></pre></div>
+<p>Read IDAT file list. Here is an example of processing three IDAT files from <code>minfiDataEPIC</code>. Your may process your own data by specifying your target file list. Required collumns: Sample_Name, Basename.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>target &lt;-<span class="st"> </span><span class="kw">get_target</span>(<span class="st">&quot;EPIC&quot;</span>)</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="co">#&gt; Loading required package: IlluminaHumanMethylationEPICmanifest</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="co">#&gt; Loading required package: IlluminaHumanMethylationEPICanno.ilm10b2.hg19</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="kw">head</span>(target)</span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="co">#&gt;    Sample_Name</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="co">#&gt; 1 200144450018</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="co">#&gt; 2 200144450019</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="co">#&gt; 3 200144450021</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="co">#&gt;                                                                                           Basename</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="co">#&gt; 1 C:/Users/DELL/Documents/R/win-library/4.0/minfiDataEPIC/extdata/200144450018/200144450018_R04C01</span></span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="co">#&gt; 2 C:/Users/DELL/Documents/R/win-library/4.0/minfiDataEPIC/extdata/200144450019/200144450019_R07C01</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="co">#&gt; 3 C:/Users/DELL/Documents/R/win-library/4.0/minfiDataEPIC/extdata/200144450021/200144450021_R05C01</span></span></code></pre></div>
+</div>
+<div id="read-idat-files-and-noob-and-dye-bias-correction" class="section level3">
+<h3>Read IDAT files and noob and dye-bias correction</h3>
+<p>With the following code, the IDAT files listed in the variable <code>target</code> will be read one-by-one. For each sample, a noob background correction and dye-bias correction will be done. You can specify the number of CPUs to enable parallel processing. After that, a list of four elements will be returned, including corrected signals of probe A and probe B for the two color channels.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>rgData &lt;-<span class="st"> </span><span class="kw">correct_noob_dye</span>(target, mnfst, <span class="dt">cpu=</span><span class="dv">3</span>)</span></code></pre></div>
+</div>
+<div id="call-genotypes" class="section level3">
+<h3>Call genotypes</h3>
+<p>As shown below, you can call genotypes for genotyping probes, CCS SNP probes, and type-II SNP probes. For each probe and each sample, an allelic balance (AB) will be calculated, which indicates the proportion of signals supporting the alternative allele. The AB values can be fitted with three beta distribution denoting the three genotypes (reference homozygous, heterozygous, and alternative homozygous) and one uniform distribution denoting outliers. We used <code>ewastools</code> to call genotypes based on the AB values. In addition, you can plot the fitted distribution of the AB values and produce a VCF file of the inferred genotypes by specifying <code>plotBeta=TRUE</code> and <code>vcf=TRUE</code>.</p>
+<p>You can also specify <span class="math inline">\(R^2\)</span> and MAF cutoffs to filter variants. Note that for VCF output, variants with <span class="math inline">\(R^2\)</span> or MAF below the cutoffs will be marked in the <code>FILTER</code> column. For the returned matrix, variants with <span class="math inline">\(R^2\)</span> or MAF below the cutoffs will be removed.</p>
+<p>We noted that in the example data, most of variants have <span class="math inline">\(R^2\)</span>=0. This is because we only used three samples here.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># Call genotypes for genotyping probes</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>dosage_genotyping &lt;-<span class="st"> </span><span class="kw">callGeno_genotyping</span>(rgData, <span class="dt">plotBeta=</span><span class="ot">TRUE</span>, <span class="dt">vcf=</span><span class="ot">TRUE</span>, <span class="dt">R2_cutoff=</span><span class="fl">0.7</span>, <span class="dt">MAF_cutoff=</span><span class="fl">0.01</span>)</span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="co"># Call genotypes for CCS snp probes</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a>dosage_ccs &lt;-<span class="st"> </span><span class="kw">callGeno_ccs</span>(rgData, <span class="dt">plotBeta=</span><span class="ot">TRUE</span>, <span class="dt">vcf=</span><span class="ot">TRUE</span>, <span class="dt">R2_cutoff=</span><span class="fl">0.7</span>, <span class="dt">MAF_cutoff=</span><span class="fl">0.01</span>)</span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="co"># Call genotypes for type-II snp probes</span></span>
+<span id="cb5-6"><a href="#cb5-6"></a>dosage_typeII &lt;-<span class="st"> </span><span class="kw">callGeno_typeII</span>(rgData, <span class="dt">plotBeta=</span><span class="ot">TRUE</span>, <span class="dt">vcf=</span><span class="ot">TRUE</span>, <span class="dt">R2_cutoff=</span><span class="fl">0.7</span>, <span class="dt">MAF_cutoff=</span><span class="fl">0.01</span>)</span>
+<span id="cb5-7"><a href="#cb5-7"></a><span class="co"># Combine genotypes inferred from the three probe types</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a>dosage &lt;-<span class="st"> </span><span class="kw">rbind</span>(dosage_genotyping, dosage_ccs, dosage_typeII)</span></code></pre></div>
+</div>
+<div id="estimate-sample-relationships" class="section level3">
+<h3>Estimate sample relationships</h3>
+<p>With the inferred genotypes, you can estimate sample relationships using the <code>getKinship</code> function. It produces a data frame containing kinship coefficient (<span class="math inline">\(\phi\)</span>) and sample relationships between each two samples.</p>
+<p>Kinship coefficient is calculated according to the SEEKIN software (Dou et al. Plos Genetics 2017): <span class="math display">\[2\phi_{ij} = \frac{\sum_m(G_{im}-2p_m)(G_{jm}-2p_m)}{2p_m(1-p_m)(R^2)^2}\]</span>, where <span class="math inline">\(\phi_{ij}\)</span> denotes the kinship coefficient between <span class="math inline">\(i\)</span>-th and <span class="math inline">\(j\)</span>-th sample. <span class="math inline">\(G_{im}\)</span> and <span class="math inline">\(G_{jm}\)</span> denotes genotypes of <span class="math inline">\(m\)</span>-th SNP for <span class="math inline">\(i\)</span>-th and <span class="math inline">\(j\)</span>-th sample. <span class="math inline">\(p_m\)</span> denotes allele frequency of <span class="math inline">\(m\)</span>-th SNP. <span class="math inline">\(R^2\)</span> is calculated as <span class="math inline">\(R^2 = \frac{\sigma^2}{2p(1-p)}\)</span>, where <span class="math inline">\(\sigma^2\)</span> is the variance of genotype.</p>
+<p>Sample relationships can be inferred according to kinship coefficients (Manichaikul et al. Bioinformatics 2010). Sample pairs with <span class="math inline">\(\phi \ge \frac{1}{2^\frac{3}{2}}\)</span> are duplicate samples or monozygotic twin. Sample pairs with <span class="math inline">\(\phi &lt; \frac{1}{2^\frac{3}{2}}\)</span> and <span class="math inline">\(\phi \ge \frac{1}{2^\frac{5}{2}}\)</span> are first-degree relatives. Sample pairs with <span class="math inline">\(\phi &lt; \frac{1}{2^\frac{5}{2}}\)</span> and <span class="math inline">\(\phi \ge \frac{1}{2^\frac{7}{2}}\)</span> are second-degree relatives. Sample pairs with <span class="math inline">\(\phi &lt; \frac{1}{2^\frac{7}{2}}\)</span> and <span class="math inline">\(\phi \ge \frac{1}{2^\frac{9}{2}}\)</span> are third-degree relatives. Sample pairs with <span class="math inline">\(\phi &lt; \frac{1}{2^\frac{9}{2}}\)</span> are unrelated.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>kinship &lt;-<span class="st"> </span><span class="kw">getKinship</span>(dosage)</span></code></pre></div>
+</div>
+<div id="estimate-sample-contamination" class="section level3">
+<h3>Estimate sample contamination</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>inbreed &lt;-<span class="st"> </span><span class="kw">getInbreed</span>(dosage)</span></code></pre></div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
