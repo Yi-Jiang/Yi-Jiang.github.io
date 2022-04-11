@@ -342,7 +342,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>The <code>MethyGenotyper</code> package provides functions to infer genotypes (output a VCF file) for specific probes and on Illumina’s Infinium MethylationEPIC (EPIC) array. The probes include genotyping probes, color-channel-switching (CCS) SNP probes, and Type-II SNP probes. We defined allelic balance (AB) as the proportion of signals supporting the alternative allele and calculated AB for each probe and sample.</p>
+<p>The <code>MethyGenotyper</code> package provides functions to infer genotypes (output a VCF file) for specific probes on Illumina’s Infinium MethylationEPIC (EPIC) array. The probes include genotyping probes, color-channel-switching (CCS) SNP probes, and Type-II SNP probes. We defined allelic balance (AB) as the proportion of signals supporting the alternative allele and calculated AB for each probe and sample.</p>
 <ul>
 <li><strong>Genotyping probe:</strong> There are 59 genotyping probes (started with “rs”) on EPIC array. Six of them on sex chromosomes were removed. We calculated AB as the proportion of signals supporting alternative alleles over total signals.</li>
 <li><strong>CCS SNP probe:</strong> There are ## CCS SNP probes on EPIC array. These probes are type-I probes with SNPs at single base extension (SBE) resulting in CCS (A,T &lt;-&gt; C,G mutation). The signals for probes with CCS SNPs are called out-of-band signals. We calculated AB as the proportion of out-of-band signals over total signals.</li>
@@ -383,17 +383,15 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb2-9"><a href="#cb2-9"></a><span class="co">#&gt; 6 cg05451842    16681196          NA                   II</span></span></code></pre></div>
 <p>Read IDAT file list. Here is an example of processing three IDAT files from <code>minfiDataEPIC</code>. Your may process your own data by specifying your target file list. Required collumns: Sample_Name, Basename.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>target &lt;-<span class="st"> </span><span class="kw">get_target</span>(<span class="st">&quot;EPIC&quot;</span>)</span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="co">#&gt; Loading required package: IlluminaHumanMethylationEPICmanifest</span></span>
-<span id="cb3-3"><a href="#cb3-3"></a><span class="co">#&gt; Loading required package: IlluminaHumanMethylationEPICanno.ilm10b2.hg19</span></span>
-<span id="cb3-4"><a href="#cb3-4"></a><span class="kw">head</span>(target)</span>
-<span id="cb3-5"><a href="#cb3-5"></a><span class="co">#&gt;    Sample_Name</span></span>
-<span id="cb3-6"><a href="#cb3-6"></a><span class="co">#&gt; 1 200144450018</span></span>
-<span id="cb3-7"><a href="#cb3-7"></a><span class="co">#&gt; 2 200144450019</span></span>
-<span id="cb3-8"><a href="#cb3-8"></a><span class="co">#&gt; 3 200144450021</span></span>
-<span id="cb3-9"><a href="#cb3-9"></a><span class="co">#&gt;                                                                                           Basename</span></span>
-<span id="cb3-10"><a href="#cb3-10"></a><span class="co">#&gt; 1 C:/Users/DELL/Documents/R/win-library/4.0/minfiDataEPIC/extdata/200144450018/200144450018_R04C01</span></span>
-<span id="cb3-11"><a href="#cb3-11"></a><span class="co">#&gt; 2 C:/Users/DELL/Documents/R/win-library/4.0/minfiDataEPIC/extdata/200144450019/200144450019_R07C01</span></span>
-<span id="cb3-12"><a href="#cb3-12"></a><span class="co">#&gt; 3 C:/Users/DELL/Documents/R/win-library/4.0/minfiDataEPIC/extdata/200144450021/200144450021_R05C01</span></span></code></pre></div>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="kw">head</span>(target)</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="co">#&gt;    Sample_Name</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="co">#&gt; 1 200144450018</span></span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="co">#&gt; 2 200144450019</span></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="co">#&gt; 3 200144450021</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a><span class="co">#&gt;                                                                                           Basename</span></span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="co">#&gt; 1 C:/Users/DELL/Documents/R/win-library/4.0/minfiDataEPIC/extdata/200144450018/200144450018_R04C01</span></span>
+<span id="cb3-9"><a href="#cb3-9"></a><span class="co">#&gt; 2 C:/Users/DELL/Documents/R/win-library/4.0/minfiDataEPIC/extdata/200144450019/200144450019_R07C01</span></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="co">#&gt; 3 C:/Users/DELL/Documents/R/win-library/4.0/minfiDataEPIC/extdata/200144450021/200144450021_R05C01</span></span></code></pre></div>
 </div>
 <div id="read-idat-files-and-noob-and-dye-bias-correction" class="section level3">
 <h3>Read IDAT files and noob and dye-bias correction</h3>
